@@ -1,0 +1,72 @@
+import path from "path";
+import express, { Express, Request, Response } from "express";
+import dotenv from "dotenv";
+import * as Sentry from "@sentry/node";
+import cors from "cors";
+
+import SystemuserRouter from "./routes/SystemuserRoute";
+import { sequelize } from "./models";
+import syncDatabase from "./database/sync"; // ✅ correct import of the sync function
+
+dotenv.config();
+
+console.log("🛠️ GIBS_EQUIPMENT =", process.env.GIBS_EQUIPMENT);
+
+const app: Express = express();
+const port = Number(process.env.GIBS_EQUIPMENT) || 3000; // ✅ uses MANAGE_LEAD_PORT
+
+// --- Sentry setup ---
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  serverName: " GIBS_EQUIPMENT",
+  profilesSampleRate: 1.0,
+});
+
+// --- Middleware ---
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: false,
+  })
+);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// --- Static folder ---
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// --- Routes ---
+app.use("/api/v1/gibsequipment", SystemuserRouter);
+
+app.get("/", (_req: Request, res: Response) => {
+  res.send("Express + TypeScript server is running.");
+});
+
+// --- Initialize server ---
+async function startServer() {
+  try {
+    console.log("📦 Connecting to database...");
+    await sequelize.authenticate();
+    console.log("✅ Database connection established");
+
+    await syncDatabase(sequelize); // ✅ calls real function
+
+    console.log("🚀 Launching server...");
+    app.listen(port, "0.0.0.0", () => {
+      console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+}
+
+process.on("unhandledRejection", (reason) => {
+  console.error("UNHANDLED REJECTION:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("UNCAUGHT EXCEPTION:", err);
+});
+
+startServer();

@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Danish@321"
+      POSTGRES_DB: "qibs_equipment"
+    ports:
+      - "5435:5432"
+    volumes:
+      - compress_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ghcr.io/danishkkhan13/manageleadcrmbackend-prod:latest
+    restart: unless-stopped
+    ports:
+      - "8050:8050"     # ✅ host 8050 -> container 8050
+    environment:
+      NODE_ENV: "production"
+      PORT: "8050"
+      HOST: "0.0.0.0"
+      GIBS_EQUIPMENT: "8050"     # ✅ now matches your code
+
+      # Postgres
+      PG_USE_SSL: "false"
+      PGHOST_WRITER: "db"
+      PGPORT_WRITER: "5432"
+      PGUSER_WRITER: "postgres"
+      PGPASSWORD_WRITER: "Danish@321"
+      PGDATABASE_WRITER: "qibs_equipment"
+
+      PGHOST_READER: "db"
+      PGPORT_READER: "5432"
+      PGUSER_READER: "postgres"
+      PGPASSWORD_READER: "Danish@321"
+      PGDATABASE_READER: "qibs_equipment"
+
+      # JWT
+      JWT_SECRET: "your_super_secret_key"
+
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/usr/src/app/uploads
+      - ./config:/usr/src/app/config
+
+volumes:
+  compress_pgdata:
