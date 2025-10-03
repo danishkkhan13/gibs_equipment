@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: "Danish@321"
       POSTGRES_DB: "qibs_equipment"
     ports:
-      - "5435:5432"
+      - "5043:5432"
     volumes:
       - compress_pgdata:/var/lib/postgresql/data
     healthcheck:
