@@ -4,16 +4,15 @@ import DBServices from "../database/DBService";
 import initUserModel from "./User";
 import initProductModel from "./Product";
 
-// ✅ create DB service instance
+// Initialize DB services
 const dbService = new DBServices();
 const sequelize: Sequelize = dbService.sequelizeWriter;
 
-/* ------------ Initialize Models ------------ */
+// Initialize models
 const User = initUserModel(sequelize);
 const Product = initProductModel(sequelize);
 
-/* ------------ Define Associations ------------ */
-// One User → Many Products
+// Associations
 User.hasMany(Product, {
   foreignKey: { name: "user_id", allowNull: false },
   as: "products",
@@ -21,7 +20,6 @@ User.hasMany(Product, {
   onUpdate: "CASCADE",
 });
 
-// Each Product → One User
 Product.belongsTo(User, {
   foreignKey: { name: "user_id", allowNull: false },
   as: "user",
@@ -29,10 +27,10 @@ Product.belongsTo(User, {
   onUpdate: "CASCADE",
 });
 
-/* ------------ Export ------------ */
+// Export db instance
 const db = {
-  sequelize,     // Sequelize instance
-  Sequelize,     // Sequelize class itself
+  sequelize,
+  Sequelize,
   User,
   Product,
 };

@@ -14,9 +14,8 @@ router.post("/login", authController.login);
 router.get("/users", authController.getAllUsers);
 
 /* ---------------------- PRODUCTS ---------------------- */
-// ✅ use uploadFile.single("image") to accept an image file with the field name "image"
 router.post("/products", uploadFile.single("image"), productController.create);
-router.get("/products", productController.getAll);
+router.get("/allproducts", productController.getAll);
 router.get("/products/:id", productController.getOne);
 router.put("/products/:id", uploadFile.single("image"), productController.update);
 router.delete("/products/:id", productController.delete);

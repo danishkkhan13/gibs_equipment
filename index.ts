@@ -1,7 +1,6 @@
-import path from "path";
 import express, { Express, Request, Response } from "express";
+import path from "path";
 import dotenv from "dotenv";
-import * as Sentry from "@sentry/node";
 import cors from "cors";
 
 import SystemuserRouter from "./routes/SystemuserRoute";
@@ -13,32 +12,28 @@ dotenv.config();
 console.log("🛠️ GIBS_EQUIPMENT =", process.env.GIBS_EQUIPMENT);
 
 const app: Express = express();
-const port = Number(process.env.GIBS_EQUIPMENT) || 3000; // ✅ uses MANAGE_LEAD_PORT
 
-// --- Sentry setup ---
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  serverName: " GIBS_EQUIPMENT",
-  profilesSampleRate: 1.0,
-});
+// --- Serve static files (uploads folder) ---
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+// --- Port setup from environment variable ---
+const port = Number(process.env.GIBS_EQUIPMENT) || 3000; // Default to 3000 if GIBS_EQUIPMENT is not defined
 
 // --- Middleware ---
 app.use(
   cors({
-    origin: "*",
+    origin: "*", // Allow all origins (adjust as needed)
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: false,
+    credentials: false, // If you don't need credentials, set to false
   })
 );
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// --- Static folder ---
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(express.json()); // JSON parsing middleware
+app.use(express.urlencoded({ extended: true })); // URL encoded body parser
 
 // --- Routes ---
 app.use("/api/v1/gibsequipment", SystemuserRouter);
 
+// Basic test route to ensure server is running
 app.get("/", (_req: Request, res: Response) => {
   res.send("Express + TypeScript server is running.");
 });
@@ -50,7 +45,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("✅ Database connection established");
 
-    await syncDatabase(sequelize); // ✅ calls real function
+    await syncDatabase(sequelize); // Calls the sync function to initialize DB schema
 
     console.log("🚀 Launching server...");
     app.listen(port, "0.0.0.0", () => {
@@ -62,11 +57,15 @@ async function startServer() {
   }
 }
 
+// Handle unhandled promise rejections
 process.on("unhandledRejection", (reason) => {
   console.error("UNHANDLED REJECTION:", reason);
 });
+
+// Handle uncaught exceptions
 process.on("uncaughtException", (err) => {
   console.error("UNCAUGHT EXCEPTION:", err);
 });
 
+// Start the server
 startServer();

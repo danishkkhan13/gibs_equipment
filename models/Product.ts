@@ -1,12 +1,16 @@
-import { DataTypes, Model, Sequelize, ForeignKey } from "sequelize";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
-export default function initProductModel(sequelize: Sequelize) {
+// Define the Product model for Sequelize
+export default (sequelize: Sequelize) => {
   class Product extends Model {
-    declare id: number;
-    declare name: string;
-    declare description: string | null;
-    declare price: number;
-    declare user_id: ForeignKey<string>; // ✅ FK -> User.id (UUID)
+    public id!: number;
+    public name!: string;
+    public description!: string | null;
+    public price!: number;
+    public user_id!: string;
+    public image_url!: string | null; // Image URL (relative path to the file)
+    public created_at!: Date;
+    public updated_at!: Date;
   }
 
   Product.init(
@@ -29,17 +33,30 @@ export default function initProductModel(sequelize: Sequelize) {
         allowNull: false,
       },
       user_id: {
-        type: DataTypes.UUID,     // ✅ must match User.id type
+        type: DataTypes.STRING,
         allowNull: false,
+      },
+      image_url: {
+        type: DataTypes.STRING, // Store image URL path here
+        allowNull: true,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
       sequelize,
       tableName: "products",
-      timestamps: true,
-      underscored: true,
+      timestamps: false, // We manually handle created_at / updated_at
     }
   );
 
   return Product;
-}
+};
