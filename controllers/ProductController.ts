@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
-import { Product } from "../models";
+import { Product } from "../models";  // Adjust to your model path
 import BaseController from "./BaseController";
 
 // Get the base URL from environment (localhost for development, actual domain for production)
@@ -44,7 +44,7 @@ export default class ProductController extends BaseController {
       const products = await Product.findAll();
   
       const productsWithImage = products.map((product: any) => {
-        const imageUrl = product.image_url ? `${BASE_URL}${product.image_url}` : null;
+        const imageUrl = product.image_url ? `${BASE_URL}${product.image_url.replace(/^\/+/, '')}` : null;
         console.log("Image URL:", imageUrl); // Log the image URL for debugging
   
         return {
@@ -58,7 +58,6 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
-  
 
   /**
    * Create a new product
@@ -88,6 +87,7 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+
   public getOne = async (req: Request, res: Response) => {
     try {
       const { id } = req.body;
@@ -104,7 +104,7 @@ export default class ProductController extends BaseController {
       const productWithImage = {
         ...product.dataValues,
         image_url: product.image_url
-          ? `${BASE_URL}${product.image_url}` // Concatenate BASE_URL with the image URL path
+          ? `${BASE_URL}${product.image_url.replace(/^\/+/, '')}` // Concatenate BASE_URL with the image URL path
           : null, // If no image URL, return null
       };
   
@@ -113,7 +113,7 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
-  
+
   /**
    * Update a product (ID from body)
    */
