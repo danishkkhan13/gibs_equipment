@@ -16,8 +16,8 @@ router.get("/users", authController.getAllUsers);
 /* ---------------------- PRODUCTS ---------------------- */
 router.post("/products", uploadFile.single("image"), productController.create);
 router.get("/allproducts", productController.getAll);
-router.get("/products/:id", productController.getOne);
-router.put("/products/:id", uploadFile.single("image"), productController.update);
-router.delete("/products/:id", productController.delete);
+router.get("/singleproduct", productController.getOne);
+router.put("/updateproduct", uploadFile.single("image"), productController.update);
+router.delete("/deleteproduct", productController.delete);
 
 export default router;
