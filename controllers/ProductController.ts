@@ -42,22 +42,23 @@ export default class ProductController extends BaseController {
   public getAll = async (_req: Request, res: Response) => {
     try {
       const products = await Product.findAll();
-
-      // Ensure image URLs are full paths
+  
       const productsWithImage = products.map((product: any) => {
+        const imageUrl = product.image_url ? `${BASE_URL}${product.image_url}` : null;
+        console.log("Image URL:", imageUrl); // Log the image URL for debugging
+  
         return {
           ...product.dataValues,
-          image_url: product.image_url
-            ? `${BASE_URL}${product.image_url}` // Full URL path for the image
-            : null, // If no image, return null
+          image_url: imageUrl, // Full URL for image
         };
       });
-
+  
       return this.sendSuccess(res, productsWithImage, "Products fetched successfully");
     } catch (err) {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+  
 
   /**
    * Create a new product
