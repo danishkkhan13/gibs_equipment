@@ -19,10 +19,12 @@ services:
       retries: 5
 
   backend:
-    image: ghcr.io/danishkkhan13/manageleadcrmbackend-prod:latest
+    build:
+      context: .  # Adjust to the directory where your Dockerfile is located
+      dockerfile: Dockerfile # Specify Dockerfile name if it's not default
     restart: unless-stopped
     ports:
-      - "8050:8050"     # ✅ host 8050 -> container 8050
+      - "8050:8050"
     environment:
       NODE_ENV: "production"
       PORT: "8050"
