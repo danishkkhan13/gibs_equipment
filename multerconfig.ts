@@ -1,15 +1,7 @@
 import multer from "multer";
 import path from "path";
 
-// Storage setup for multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/products"); // Save uploaded images to "uploads/products"
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext); // Unique filename based on timestamp
-  }
-});
+// Storage setup for multer (using memory storage)
+const storage = multer.memoryStorage(); // Store file in memory
 
 export const uploadFile = multer({ storage });
