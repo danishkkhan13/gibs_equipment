@@ -52,7 +52,12 @@ export default class ProductController extends BaseController {
    */
   public getOne = async (req: Request, res: Response) => {
     try {
-      const product = await Product.findByPk(req.params.id);
+      const { id } = req.body;
+      if (!id) {
+        return this.sendError(res, {}, "Product id is required in request body", 400);
+      }
+
+      const product = await Product.findByPk(id);
       if (!product) {
         return this.sendError(res, {}, "Product not found", 404);
       }
@@ -69,6 +74,7 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+
 
   /**
    * Create a new product
