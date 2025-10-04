@@ -1,14 +1,13 @@
 import { DataTypes, Model, Sequelize } from "sequelize";
 
-// Define the Product model for Sequelize
 export default (sequelize: Sequelize) => {
   class Product extends Model {
     public id!: number;
     public name!: string;
     public description!: string | null;
     public price!: number;
-    public user_id!: string;
-    public image_url!: string | null; // Image URL (relative path to the file)
+    public user_id!: string; // Change this to UUID
+    public image_url!: string | null;
     public created_at!: Date;
     public updated_at!: Date;
   }
@@ -33,8 +32,14 @@ export default (sequelize: Sequelize) => {
         allowNull: false,
       },
       user_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID, // Change user_id to UUID to match users table
         allowNull: false,
+        references: {
+          model: 'users', // The users table
+          key: 'id',      // Referencing the id field in users table (UUID)
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
       },
       image_url: {
         type: DataTypes.STRING, // Store image URL path here
