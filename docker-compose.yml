@@ -45,6 +45,8 @@ services:
       PGPASSWORD_READER: "Danish@321"
       PGDATABASE_READER: "qibs_equipment"
 
+      BASE_URL: "https://gibs-equipment-backend.dynsimulation.com/"
+
       # JWT
       JWT_SECRET: "your_super_secret_key"
 
