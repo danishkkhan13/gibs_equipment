@@ -47,8 +47,15 @@ services:
 
       BASE_URL: "https://gibs-equipment-backend.dynsimulation.com/"
 
-      # JWT
+        # JWT
       JWT_SECRET: "your_super_secret_key"
+
+      SMTP_HOST: "mail.dynsimulation.com"
+      SMTP_PORT: "587"
+      SMTP_USER: "webmaster@dynsimulation.com"
+      SMTP_PASS: "dynsimulation@321"
+      SMTP_FROM: "GIbs <webmaster@dynsimulation.com>"
+
 
     depends_on:
       db:

@@ -5,7 +5,6 @@ export default (sequelize: Sequelize) => {
     public id!: number;
     public name!: string;
     public description!: string | null;
-    public price!: number;
     public user_id!: string; // Change this to UUID
     public image_url!: string | null;
     public created_at!: Date;
@@ -26,10 +25,6 @@ export default (sequelize: Sequelize) => {
       description: {
         type: DataTypes.TEXT,
         allowNull: true,
-      },
-      price: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
       },
       user_id: {
         type: DataTypes.UUID, // Change user_id to UUID to match users table
