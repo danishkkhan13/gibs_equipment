@@ -7,7 +7,9 @@ export default (sequelize: Sequelize) => {
     public description!: string | null;
     public user_id!: string;
     public image_url!: string | null;
-    public readonly createdAt!: Date; // camelCase for Sequelize
+    public meta_title!: string | null; // Added field for meta title
+    public meta_description!: string | null; // Added field for meta description
+    public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
   }
 
@@ -40,6 +42,14 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      meta_title: {
+        type: DataTypes.STRING,
+        allowNull: true, // Optional field for meta title
+      },
+      meta_description: {
+        type: DataTypes.TEXT,
+        allowNull: true, // Optional field for meta description
+      },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -56,7 +66,7 @@ export default (sequelize: Sequelize) => {
     {
       sequelize,
       tableName: "products",
-      timestamps: true, // enables Sequelize’s timestamp handling
+      timestamps: true,
       createdAt: "created_at", // map to DB column
       updatedAt: "updated_at", // map to DB column
     }

@@ -67,10 +67,10 @@ export default class ProductController extends BaseController {
    */
   public create = async (req: Request, res: Response) => {
     try {
-      const { name, description, user_id } = req.body;
+      const { name, description, user_id, meta_title, meta_description } = req.body;
 
       if (!name || !user_id) {
-        return this.sendError(res, {}, "name, and user_id are required", 400);
+        return this.sendError(res, {}, "name, meta_title, meta_description , and user_id are required", 400);
       }
 
       // Ensure file is present in the request
@@ -83,13 +83,22 @@ export default class ProductController extends BaseController {
       console.log("Image URL:", image_url); // Log the image URL for debugging
 
       // Create the product in the database
-      const product = await Product.create({ name, description, user_id, image_url });
+      const product = await Product.create({
+        name,
+        description,
+        user_id,
+        image_url,
+        meta_title,         // Save the meta title
+        meta_description,   // Save the meta description
+      });
+
       return this.sendSuccess(res, product, "Product created successfully");
     } catch (err) {
       console.error("Error:", err); // Log any error
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+
 
   public getOne = async (req: Request, res: Response) => {
     try {
@@ -122,38 +131,46 @@ export default class ProductController extends BaseController {
    */
   public update = async (req: Request, res: Response) => {
     try {
-      const { id, name, description, user_id } = req.body;
-
+      const { id, name, description, user_id, meta_title, meta_description } = req.body;
+  
       // Find the product to update
       const product = await Product.findByPk(id);
       if (!product) {
         return this.sendError(res, {}, "Product not found", 404);
       }
-
+  
       // Default to the existing image URL if no new image is uploaded
       let image_url = product.image_url;
-
+  
       if (req.file) {
         // Delete the old image file if a new one is uploaded
         const oldImagePath = path.join(process.cwd(), product.image_url || "");
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath); // Delete old image from disk
         }
-
+  
         // Save the new image file and get the URL
         image_url = this.saveFileToDisk(req.file);
         console.log("New Image URL:", image_url); // Log the new image URL
       }
-
-      // Update the product with the new image URL and other fields
-      await product.update({ name, description, user_id, image_url });
-
+  
+      // Update the product with the new image URL, meta title, and meta description
+      await product.update({
+        name,
+        description,
+        user_id,
+        image_url,
+        meta_title,         // Update the meta title
+        meta_description,   // Update the meta description
+      });
+  
       return this.sendSuccess(res, product, "Product updated successfully");
     } catch (err) {
       console.error("Error:", err);
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+  
 
   /**
    * Delete a product (ID from body)
