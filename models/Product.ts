@@ -5,10 +5,10 @@ export default (sequelize: Sequelize) => {
     public id!: number;
     public name!: string;
     public description!: string | null;
-    public user_id!: string; // Change this to UUID
+    public user_id!: string;
     public image_url!: string | null;
-    public created_at!: Date;
-    public updated_at!: Date;
+    public readonly createdAt!: Date; // camelCase for Sequelize
+    public readonly updatedAt!: Date;
   }
 
   Product.init(
@@ -27,34 +27,38 @@ export default (sequelize: Sequelize) => {
         allowNull: true,
       },
       user_id: {
-        type: DataTypes.UUID, // Change user_id to UUID to match users table
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: 'users', // The users table
-          key: 'id',      // Referencing the id field in users table (UUID)
+          model: "users",
+          key: "id",
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
       },
       image_url: {
-        type: DataTypes.STRING, // Store image URL path here
+        type: DataTypes.STRING,
         allowNull: true,
       },
-      created_at: {
+      createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
+        field: "created_at", // maps DB column created_at → createdAt
       },
-      updated_at: {
+      updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
+        field: "updated_at", // maps DB column updated_at → updatedAt
       },
     },
     {
       sequelize,
       tableName: "products",
-      timestamps: false, // We manually handle created_at / updated_at
+      timestamps: true, // enables Sequelize’s timestamp handling
+      createdAt: "created_at", // map to DB column
+      updatedAt: "updated_at", // map to DB column
     }
   );
 
