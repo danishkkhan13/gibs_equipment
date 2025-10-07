@@ -42,7 +42,9 @@ export default class ProductController extends BaseController {
    */
   public getAll = async (_req: Request, res: Response) => {
     try {
-      const products = await Product.findAll();
+      const products = await Product.findAll({
+        order: [['createdAt', 'DESC']], // Newest product first
+      });
 
       const productsWithImage = products.map((product: any) => {
         const imageUrl = product.image_url ? `${BASE_URL}${product.image_url.replace(/^\/+/, '')}` : null;
@@ -178,7 +180,7 @@ export default class ProductController extends BaseController {
       const { mobileNumber, name, description, image } = req.body;
 
       // Validate input
-      if (!mobileNumber || !name || !description  || !image) {
+      if (!mobileNumber || !name || !description || !image) {
         return this.sendError(res, {}, "Mobile number and product details (name, description, and image URL) are required", 400);
       }
 
