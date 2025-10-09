@@ -6,7 +6,7 @@ import DBServices from "../database/DBService";
 const dbService = new DBServices();
 const sequelize: Sequelize = dbService.sequelizeWriter;
 
-// Ensure categories are created
+// Seed categories into the database
 async function ensureCategories(sequelize: Sequelize) {
   const categories = [
     { id: "123e4567-e89b-12d3-a456-426614174000", name: "Construction equipment" },
@@ -36,36 +36,42 @@ async function ensureCategories(sequelize: Sequelize) {
 // Ensure `category_id` column exists in `products` table
 async function ensureCategoryReference(sequelize: Sequelize) {
   try {
-    // Ensure category table exists first
-    await sequelize.query(`
-      CREATE TABLE IF NOT EXISTS public.categories (
-        id UUID PRIMARY KEY,
-        name VARCHAR(160) UNIQUE NOT NULL,
-        createdAt TIMESTAMPTZ DEFAULT NOW(),
-        updatedAt TIMESTAMPTZ DEFAULT NOW()
-      );
+    // Check if the column already exists before adding it
+    const columnExists = await sequelize.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'products' AND column_name = 'category_id';
     `);
 
-    console.log("✅ Categories table ensured");
+    // If the column doesn't exist, add it
+    if (columnExists[0].length === 0) {
+      console.log("Adding category_id column to products table...");
+      await sequelize.query(`
+        ALTER TABLE public.products
+          ADD COLUMN category_id UUID;
+      `);
+      console.log("✅ Added category_id column to products table");
+    }
 
-    // Add `category_id` column to `products` table
-    await sequelize.query(`
-      ALTER TABLE IF EXISTS public.products
-        ADD COLUMN IF NOT EXISTS category_id UUID;
+    // Add foreign key constraint only if it doesn't exist
+    const constraintExists = await sequelize.query(`
+      SELECT conname
+      FROM pg_constraint
+      WHERE conname = 'products_category_id_fkey';
     `);
 
-    console.log("✅ category_id column added to products table");
-
-    // Add the foreign key constraint
-    await sequelize.query(`
-      ALTER TABLE IF EXISTS public.products
-        ADD CONSTRAINT IF NOT EXISTS products_category_id_fkey
-        FOREIGN KEY (category_id)
-        REFERENCES public.categories(id)
-        ON DELETE SET NULL;
-    `);
-
-    console.log("✅ Foreign key constraint added to products table");
+    // If the foreign key constraint doesn't exist, add it
+    if (constraintExists[0].length === 0) {
+      console.log("Adding foreign key constraint for category_id...");
+      await sequelize.query(`
+        ALTER TABLE public.products
+          ADD CONSTRAINT products_category_id_fkey
+          FOREIGN KEY (category_id)
+          REFERENCES public.categories(id)
+          ON DELETE SET NULL;
+      `);
+      console.log("✅ Added foreign key constraint for category_id in products table");
+    }
 
   } catch (error) {
     console.error("❌ Error adding category_id column and constraint:", error);
@@ -78,7 +84,7 @@ export async function syncDatabase(sequelize: Sequelize) {
   try {
     console.log("🔄 Syncing database...");
 
-    // Ensure category table exists and foreign key is set correctly
+    // Ensure category_id exists and is referenced in products table
     await ensureCategoryReference(sequelize);
 
     // Ensure categories are seeded
