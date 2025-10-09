@@ -16,9 +16,11 @@ router.get("/users", authController.getAllUsers);
 /* ---------------------- PRODUCTS ---------------------- */
 router.post("/products", uploadFile.single("image"), productController.create); // Using multer for image upload
 router.get("/allproducts", productController.getAll);
+router.get("/getallproduct", productController.getAllproduct);
 router.post("/singleproduct", productController.getOne);
 router.post("/sendqoute", productController.sendQuote);
 router.put("/updateproduct", uploadFile.single("image"), productController.update); // Using multer for image upload
 router.delete("/deleteproduct", productController.delete);
+router.get("/getcategories", productController.getCategories);
 
 export default router;

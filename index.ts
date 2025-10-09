@@ -5,10 +5,11 @@ import cors from "cors";
 
 import SystemuserRouter from "./routes/SystemuserRoute";
 import { sequelize } from "./models";
-import syncDatabase from "./database/sync"; // ✅ correct import of the sync function
+import { syncDatabase } from "./database/sync"; // ✅ correct import of the sync function
 
 dotenv.config();
 
+// Log GIBS_EQUIPMENT variable from environment
 console.log("🛠️ GIBS_EQUIPMENT =", process.env.GIBS_EQUIPMENT);
 
 const app: Express = express();
@@ -45,7 +46,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("✅ Database connection established");
 
-    await syncDatabase(sequelize); // Calls the sync function to initialize DB schema
+    await syncDatabase(sequelize);
 
     console.log("🚀 Launching server...");
     app.listen(port, "0.0.0.0", () => {
@@ -53,7 +54,7 @@ async function startServer() {
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);
-    process.exit(1);
+    process.exit(1); // Exit process with failure code
   }
 }
 

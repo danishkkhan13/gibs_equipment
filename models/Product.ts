@@ -7,8 +7,9 @@ export default (sequelize: Sequelize) => {
     public description!: string | null;
     public user_id!: string;
     public image_url!: string | null;
-    public meta_title!: string | null; // Added field for meta title
-    public meta_description!: string | null; // Added field for meta description
+    public meta_title!: string | null;
+    public meta_description!: string | null;
+    public category_id!: string; // Adding category_id for association
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
   }
@@ -44,31 +45,39 @@ export default (sequelize: Sequelize) => {
       },
       meta_title: {
         type: DataTypes.STRING,
-        allowNull: true, // Optional field for meta title
+        allowNull: true,
       },
       meta_description: {
         type: DataTypes.TEXT,
-        allowNull: true, // Optional field for meta description
+        allowNull: true,
+      },
+      category_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "categories",
+          key: "id",
+        },
+        onDelete: "SET NULL", // When category is deleted, set category_id to NULL in products
+        onUpdate: "CASCADE",
       },
       createdAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-        field: "created_at", // maps DB column created_at → createdAt
       },
       updatedAt: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
-        field: "updated_at", // maps DB column updated_at → updatedAt
       },
     },
     {
       sequelize,
       tableName: "products",
       timestamps: true,
-      createdAt: "created_at", // map to DB column
-      updatedAt: "updated_at", // map to DB column
+      createdAt: "createdAt",
+      updatedAt: "updatedAt",
     }
   );
 
