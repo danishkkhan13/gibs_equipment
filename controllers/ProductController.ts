@@ -325,4 +325,58 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+
+  
+  public updateCategory = async (req: Request, res: Response) => {
+    try {
+      const { id, name } = req.body;
+
+      if (!id || !name) {
+        return this.sendError(res, {}, "Category ID and name are required", 400);
+      }
+
+      const category = await Category.findByPk(id);
+
+      if (!category) {
+        return this.sendError(res, {}, "Category not found", 404);
+      }
+
+      await category.update({ name });
+
+      return this.sendSuccess(res, category, "Category updated successfully");
+    } catch (err: any) {
+      if (err.name === 'SequelizeUniqueConstraintError') {
+        return this.sendError(res, err, "A category with this name already exists", 409);
+      }
+      return this.sendError(res, err, "Internal server error", 500);
+    }
+  };
+
+  
+  public deleteCategory = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.body;
+
+      if (!id) {
+        return this.sendError(res, {}, "Category ID is required", 400);
+      }
+
+      // Check if any products are associated with this category
+      const productCount = await Product.count({ where: { category_id: id } });
+      if (productCount > 0) {
+        return this.sendError(res, {}, "Cannot delete category as it is associated with existing products", 400);
+      }
+
+      const category = await Category.findByPk(id);
+      if (!category) {
+        return this.sendError(res, {}, "Category not found", 404);
+      }
+
+      await category.destroy();
+
+      return this.sendSuccess(res, {}, "Category deleted successfully");
+    } catch (err) {
+      return this.sendError(res, err, "Internal server error", 500);
+    }
+  };
 }

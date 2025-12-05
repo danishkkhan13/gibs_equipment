@@ -23,6 +23,8 @@ router.put("/updateproduct", uploadFile.single("image"), productController.updat
 router.delete("/deleteproduct", productController.delete);
 router.get("/getcategories", productController.getCategories);
 router.post("/getcategoryById", productController.getCategoryById);
+router.post("/category", productController.updateCategory);
+router.post("/category", productController.deleteCategory);
 
 router.post("/createCategory", productController.createCategory);
 
