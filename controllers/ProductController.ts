@@ -302,4 +302,27 @@ export default class ProductController extends BaseController {
       return this.sendError(res, err, "Internal server error", 500);
     }
   };
+
+  /**
+   * Get a single category by its ID
+   */
+  public getCategoryById = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.body;
+
+      if (!id) {
+        return this.sendError(res, {}, "Category ID is required", 400);
+      }
+
+      const category = await Category.findByPk(id);
+
+      if (!category) {
+        return this.sendError(res, {}, "Category not found", 404);
+      }
+
+      return this.sendSuccess(res, category, "Category fetched successfully");
+    } catch (err) {
+      return this.sendError(res, err, "Internal server error", 500);
+    }
+  };
 }
