@@ -30,11 +30,11 @@ export default class ProductController extends BaseController {
   // Get all products with category filter
   public getAll = async (req: Request, res: Response) => {
     try {
-      const { category_id } = req.body;
+      const { category_id } = req.query;
 
       const where: any = {};
       if (category_id) {
-        where.category_id = category_id; // Filter by category_id
+        where.category_id = category_id as string; // Filter by category_id
       }
 
       const products = await Product.findAll({
