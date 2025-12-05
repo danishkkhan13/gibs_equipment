@@ -22,5 +22,6 @@ router.post("/sendqoute", productController.sendQuote);
 router.put("/updateproduct", uploadFile.single("image"), productController.update); // Using multer for image upload
 router.delete("/deleteproduct", productController.delete);
 router.get("/getcategories", productController.getCategories);
+router.post("/createCategory", productController.createCategory);
 
 export default router;

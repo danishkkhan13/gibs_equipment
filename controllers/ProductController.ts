@@ -270,10 +270,33 @@ export default class ProductController extends BaseController {
   };
 
 
-  // Get all categories
-  public getCategories = async (req: Request, res: Response) => {
+  public createCategory = async (req: Request, res: Response) => {
     try {
-      const categories = await Category.findAll();
+      const { name } = req.body;
+
+      if (!name) {
+        return this.sendError(res, {}, "Category name is required", 400);
+      }
+
+      // The 'unique' constraint on the name column in the Category model
+      // will prevent duplicates. We can rely on the database to enforce this.
+      const category = await Category.create({ name });
+
+      return this.sendSuccess(res, category, "Category created successfully", 201);
+    } catch (err: any) {
+      if (err.name === 'SequelizeUniqueConstraintError') {
+        return this.sendError(res, err, "Category with this name already exists", 409);
+      }
+      return this.sendError(res, err, "Internal server error", 500);
+    }
+  };
+
+  /**
+   * Get all categories
+   */
+  public getCategories = async (_req: Request, res: Response) => {
+    try {
+      const categories = await Category.findAll({ order: [["name", "ASC"]] });
       return this.sendSuccess(res, categories, "Categories fetched successfully");
     } catch (err) {
       return this.sendError(res, err, "Internal server error", 500);
