@@ -27,6 +27,6 @@ router.put("/category", productController.updateCategory);
 router.delete("/category", productController.deleteCategory);
 
 router.post("/createCategory", productController.createCategory);
-router.patch("/hideCategory", productController.hideCategory);
+router.put("/hideCategory", productController.hideCategory);
 
 export default router;
