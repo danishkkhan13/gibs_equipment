@@ -40,7 +40,12 @@ export default class ProductController extends BaseController {
       const products = await Product.findAll({
         where,
         order: [["createdAt", "DESC"]],
-        include: [{ model: Category, as: "category", attributes: ["id", "name"] }],
+        include: [{
+          model: Category,
+          as: "category",
+          attributes: ["id", "name"],
+          where: { is_hidden: false } // Only include products from visible categories
+        }],
       });
 
       const productsWithImage = products.map((product: any) => {
@@ -296,7 +301,10 @@ export default class ProductController extends BaseController {
    */
   public getCategories = async (_req: Request, res: Response) => {
     try {
-      const categories = await Category.findAll({ order: [["name", "ASC"]] });
+      const categories = await Category.findAll({
+        where: { is_hidden: false }, // Filter out hidden categories
+        order: [["name", "ASC"]]
+      });
       return this.sendSuccess(res, categories, "Categories fetched successfully");
     } catch (err) {
       return this.sendError(res, err, "Internal server error", 500);
@@ -375,6 +383,34 @@ export default class ProductController extends BaseController {
       await category.destroy();
 
       return this.sendSuccess(res, {}, "Category deleted successfully");
+    } catch (err) {
+      return this.sendError(res, err, "Internal server error", 500);
+    }
+  };
+
+  /**
+   * Toggles the visibility of a category (hide or unhide).
+   */
+  public hideCategory = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.body;
+
+      if (!id) {
+        return this.sendError(res, {}, "Category ID is required", 400);
+      }
+
+      const category = await Category.findByPk(id);
+
+      if (!category) {
+        return this.sendError(res, {}, "Category not found", 404);
+      }
+
+      // Toggle the current is_hidden status
+      const is_hidden = !category.is_hidden;
+      await category.update({ is_hidden });
+
+      const message = is_hidden ? "Category hidden successfully" : "Category unhidden successfully";
+      return this.sendSuccess(res, category, message);
     } catch (err) {
       return this.sendError(res, err, "Internal server error", 500);
     }
